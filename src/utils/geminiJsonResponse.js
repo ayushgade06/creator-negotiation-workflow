@@ -1,14 +1,19 @@
 import ai from "../config/gemini.js";
 
+const sleep = (ms) =>
+  new Promise((resolve) => setTimeout(resolve, ms));
+
 const generateJsonResponse = async (
   systemPrompt,
-  userPrompt
+  userPrompt,
+  retries = 3
 ) => {
-  try {
-    const response =
-      await ai.models.generateContent({
-        model: "gemini-2.5-flash",
-        contents: `
+  for (let attempt = 1; attempt <= retries; attempt++) {
+    try {
+      const response =
+        await ai.models.generateContent({
+          model: "gemini-2.5-flash",
+          contents: `
 ${systemPrompt}
 
 ${userPrompt}
@@ -18,15 +23,25 @@ Return ONLY valid JSON.
 Do not use markdown.
 Do not wrap inside code blocks.
 `
-      });
+        });
 
-    const text = response.text.trim();
+      return JSON.parse(response.text.trim());
+    } catch (error) {
+      const message = error.message || "";
 
-    return JSON.parse(text);
-  } catch (error) {
-    throw new Error(
-      `Gemini JSON generation failed: ${error.message}`
-    );
+      const isRetryable =
+        message.includes("503") ||
+        message.includes("UNAVAILABLE") ||
+        message.includes("high demand");
+
+      if (!isRetryable || attempt === retries) {
+        throw new Error(
+          `Gemini JSON generation failed: ${message}`
+        );
+      }
+
+      await sleep(1000 * attempt);
+    }
   }
 };
 
