@@ -327,6 +327,29 @@
 
 **Expected:** stage: INTERESTED, action: APPROVE, requiresHumanApproval: false, enthusiasmScore: high
 
+**Output:**
+
+```json
+{
+    "success": true,
+    "data": {
+        "conversationId": "6a257bb1a44dfe11677f1913",
+        "currentStage": "INTERESTED",
+        "intent": "INTERESTED",
+        "recommendedAction": "APPROVE",
+        "requiresHumanApproval": false,
+        "workflowStatus": "ACTIVE",
+        "confidence": 0.95,
+        "enthusiasmScore": 98,
+        "riskLevel": "LOW",
+        "negotiationFatigue": false,
+        "conversationSummary": "The creator expressed strong interest in the campaign and is willing to participate. The decision has been made to approve their involvement.",
+        "draftReply": "Thank you, Sarah! We're excited to have you on board. Your creativity will definitely shine in the TikTok video showcasing our Uno Card Game. Looking forward to collaborating with you.",
+        "reasoningSummary": "Creator request falls within campaign budget."
+    }
+}
+```
+
 ---
 
 ### Scenario 9: Creator Asking About Product Shipping

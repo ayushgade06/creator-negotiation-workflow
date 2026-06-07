@@ -88,19 +88,20 @@ The workflow intentionally uses multiple specialized agents rather than a single
 * **Scalability** – New agents can be added without redesigning the existing architecture.
 * **Reliability** – Structured intermediate outputs reduce prompt complexity and improve consistency.
 
+## Deterministic Business Rules
 
-## Deterministic Business Logic
+All workflow decisions are made by a deterministic rules engine (`src/rules/businessRules.js`). LLMs are used only for analysis and classification; final business decisions remain rule-based, auditable, and fully explainable.
 
-All decisions happen in `src/rules/businessRules.js`, a pure function with no LLM calls:
-
-- confidence < 0.7 -> HUMAN_REVIEW
-- riskLevel === "HIGH" -> HUMAN_REVIEW
-- negotiationRounds >= 4 -> HUMAN_REVIEW (negotiation fatigue)
-- intent === "REQUEST_INFORMATION" -> PROVIDE_INFORMATION
-- requestedFee > maxBudget * 2 -> HUMAN_REVIEW
-- intent === "DECLINE_COLLABORATION" -> CLOSE_CONVERSATION
-- requestedFee > maxBudget -> COUNTER_OFFER
-- Default -> APPROVE
+| Condition | Action | Reasoning |
+|------------|---------|-----------|
+| Classification confidence is below **0.7** | **Human Review** | Low-confidence predictions should not drive automated business decisions. |
+| Risk level is **HIGH** | **Human Review** | Potential fraud, abuse, or suspicious requests require manual inspection. |
+| Negotiation rounds reach **4 or more** | **Human Review** | Prevents endless automated negotiation loops and allows a human to intervene. |
+| Creator requests additional campaign information | **Provide Information** | The creator needs clarification before making a decision. |
+| Requested compensation exceeds **2× the campaign budget** | **Human Review** | Large budget mismatches typically require merchant approval or custom negotiation. |
+| Creator declines the collaboration | **Close Conversation** | No further automated negotiation is necessary. |
+| Requested compensation exceeds the campaign budget but remains within an acceptable range | **Counter Offer** | Attempts to continue negotiation while staying within campaign constraints. |
+| No escalation conditions are triggered | **Approve** | Creator request aligns with campaign requirements and budget expectations. |
 
 ## State Management
 
