@@ -1,5 +1,8 @@
+import dotenv from "dotenv";
 import ollama from "ollama";
 
-export const MODEL = "qwen2.5:7b";
+dotenv.config();
+
+export const MODEL = process.env.LLM_MODEL || "qwen2.5:3b";
 
 export default ollama;
