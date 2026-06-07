@@ -1,7 +1,7 @@
 import generateJsonResponse from "../../utils/llmJsonResponse.js";
 
 const riskAgent = async (context) => {
-const systemPrompt = `
+  const systemPrompt = `
 You are a Creator Risk Detection Agent.
 
 Assess operational and partnership risk.
@@ -42,16 +42,13 @@ Schema:
   "reasoning": "Short explanation"
 }
 `;
-  
+
   const userPrompt = `
 Latest Message:
 ${context.latestMessage}
 `;
 
-  return await generateJsonResponse(
-    systemPrompt,
-    userPrompt
-  );
+  return await generateJsonResponse(systemPrompt, userPrompt);
 };
 
 export default riskAgent;

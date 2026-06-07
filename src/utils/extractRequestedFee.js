@@ -1,8 +1,5 @@
-const extractRequestedFee = (
-  message = ""
-) => {
-  const match =
-    message.match(/\$?\s?(\d+)/);
+const extractRequestedFee = (message = "") => {
+  const match = message.match(/\$?\s?(\d+)/);
 
   if (!match) {
     return null;

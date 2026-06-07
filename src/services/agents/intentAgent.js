@@ -1,13 +1,9 @@
 import generateJsonResponse from "../../utils/llmJsonResponse.js";
 
-const intentAgent = async (
-  context
-) => {
-  console.log(
-    "\n===== INTENT AGENT STARTED ====="
-  );
+const intentAgent = async (context) => {
+  console.log("\n===== INTENT AGENT STARTED =====");
 
-const systemPrompt = `
+  const systemPrompt = `
 You are an Intent Classification Agent for creator-brand negotiations.
 
 Your task is to identify the creator's PRIMARY intent from their latest message.
@@ -136,38 +132,22 @@ Schema:
 
   const userPrompt = `
 Creator Information:
-${JSON.stringify(
-  context.creator,
-  null,
-  2
-)}
+${JSON.stringify(context.creator, null, 2)}
 
 Campaign Information:
-${JSON.stringify(
-  context.campaign,
-  null,
-  2
-)}
+${JSON.stringify(context.campaign, null, 2)}
 
 Latest Message:
 ${context.latestMessage}
 `;
 
-  const result =
-    await generateJsonResponse(
-      systemPrompt,
-      userPrompt
-    );
+  const result = await generateJsonResponse(systemPrompt, userPrompt);
 
-  console.log(
-    "Intent Agent Result:"
-  );
+  console.log("Intent Agent Result:");
 
   console.log(result);
 
-  console.log(
-    "===== INTENT AGENT COMPLETED =====\n"
-  );
+  console.log("===== INTENT AGENT COMPLETED =====\n");
 
   return result;
 };

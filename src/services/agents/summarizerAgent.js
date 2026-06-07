@@ -1,11 +1,6 @@
 import generateJsonResponse from "../../utils/llmJsonResponse.js";
 
-const summarizerAgent = async ({
-  latestMessage,
-  intent,
-  stage,
-  decision
-}) => {
+const summarizerAgent = async ({ latestMessage, intent, stage, decision }) => {
   const systemPrompt = `
 You are a conversation summarization agent.
 
@@ -47,7 +42,7 @@ Schema:
   "conversationSummary": "string"
 }
 `;
-  
+
   const userPrompt = `
 Latest Message:
 ${latestMessage}
@@ -62,10 +57,7 @@ Decision:
 ${decision.action}
 `;
 
-  return await generateJsonResponse(
-    systemPrompt,
-    userPrompt
-  );
+  return await generateJsonResponse(systemPrompt, userPrompt);
 };
 
 export default summarizerAgent;

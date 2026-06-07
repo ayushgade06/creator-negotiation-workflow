@@ -1,3 +1,5 @@
+// deterministic business rules to evaluate requests
+
 const evaluateBusinessRules = ({
   intent,
   requestedFee,

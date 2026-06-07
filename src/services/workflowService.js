@@ -129,10 +129,7 @@ const processWorkflow = async (payload) => {
 
     logger.info("Business rules completed", decision);
 
-    // ==========================
-    // RESPONSE
-    // ==========================
-
+    // response agent is only needed if we're not waiting for human approval
     logger.info("Generating response");
 
     let responseResult;
@@ -169,10 +166,8 @@ Thank you for your patience.
 
     logger.info("Response generated");
 
-    // ==========================
-    // SUMMARY
-    // ==========================
-
+    
+    // summarizer agent is always run to keep the conversation summary up to date
     logger.info("Generating summary");
 
     const summaryResult = await summarizerAgent({
@@ -187,10 +182,7 @@ Thank you for your patience.
 
     logger.info("Summary generated");
 
-    // ==========================
-    // UPDATE STATE
-    // ==========================
-
+    // negotiation fatigue is determined by the number of rounds in negotiation stage
     if (stageResult.stage === "NEGOTIATING") {
       conversation.negotiationRounds += 1;
     }
@@ -217,10 +209,7 @@ Thank you for your patience.
 
     logger.info("Conversation saved");
 
-    // ==========================
-    // AUDIT
-    // ==========================
-
+    // audit log for workflow run
     logger.info("Creating workflow audit");
 
     await WorkflowRun.create({

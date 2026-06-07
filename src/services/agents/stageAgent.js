@@ -102,10 +102,7 @@ Latest Message:
 ${context.latestMessage}
 `;
 
-  return await generateJsonResponse(
-    systemPrompt,
-    userPrompt
-  );
+  return await generateJsonResponse(systemPrompt, userPrompt);
 };
 
 export default stageAgent;
