@@ -377,22 +377,22 @@
 
 ```json
 {
-  "success": true,
-  "data": {
-    "conversationId": "6a25654033bf47ee99950657",
-    "currentStage": "INTERESTED",
-    "intent": "INTERESTED",
-    "recommendedAction": "APPROVE",
-    "requiresHumanApproval": false,
-    "workflowStatus": "ACTIVE",
-    "confidence": 0.95,
-    "enthusiasmScore": 98,
-    "riskLevel": "LOW",
-    "negotiationFatigue": false,
-    "conversationSummary": "The creator expressed strong interest in the campaign and is willing to participate. The decision has been made to approve their involvement.",
-    "draftReply": "Hi Sarah, thank you so much for your interest! We're excited to have you on board. Your participation will be a great addition to our campaign. Looking forward to seeing your TikTok video featuring friends playing Uno Card Game.",
-    "reasoningSummary": "Creator request falls within campaign budget."
-  }
+    "success": true,
+    "data": {
+        "conversationId": "6a2590e349f999264547a41f",
+        "currentStage": "NEEDS_MORE_INFORMATION",
+        "intent": "SHIPPING_QUERY",
+        "recommendedAction": "APPROVE",
+        "requiresHumanApproval": false,
+        "workflowStatus": "ACTIVE",
+        "confidence": 0.95,
+        "enthusiasmScore": 70,
+        "riskLevel": "LOW",
+        "negotiationFatigue": false,
+        "conversationSummary": "The customer inquired about shipping details and delivery expectations. The current workflow stage is awaiting more information before proceeding, but the decision to approve has been made.",
+        "draftReply": "Shipping and delivery information is not currently specified in the campaign brief. Our team will provide additional details shortly.",
+        "reasoningSummary": "Creator request falls within campaign budget."
+    }
 }
 ```
 
