@@ -5,17 +5,18 @@ Backend service that automates creator-brand negotiation for affiliate marketing
 ## Table of Contents
 
 - [Architecture](#architecture)
-- [Project Structure](#project-structure)
 - [Workflow Execution](#workflow-execution)
+- [Project Structure](#project-structure)
 - [LLM Usage](#llm-usage)
-- [Business Rules](#business-rules)
+- [Deterministic Business Rules](#deterministic-business-rules)
 - [State Management](#state-management)
-- [API Reference](#api-reference)
-- [Setup](#setup)
+- [API](#api)
 - [Test Scenarios](#test-scenarios)
-- [Scaling Considerations](#scaling-considerations)
-- [Engineering Tradeoffs](#engineering-tradeoffs)
+- [Setup](#setup)
 - [Bonus Features Implemented](#bonus-features-implemented)
+- [Additional Features Beyond Assignment Requirements](#additional-features-beyond-assignment-requirements)
+- [Scaling Considerations](#scaling-considerations)
+- [Engineering Tradeoffs and Production Considerations](#engineering-tradeoffs-and-production-considerations)
 
 ## Architecture
 
@@ -421,5 +422,3 @@ More advanced systems would leverage:
 * Vector search
 * Semantic memory retrieval
 * Long-term conversation memory
-
----
