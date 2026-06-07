@@ -2,7 +2,7 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-import riskAgent from "./src/services/agents/riskAgent.js";
+import riskAgent from "../src/services/agents/riskAgent.js";
 
 const context = {
   latestMessage:

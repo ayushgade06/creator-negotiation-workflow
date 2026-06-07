@@ -6,23 +6,51 @@ Backend service that automates creator-brand negotiation for affiliate marketing
 
 Express REST API backed by MongoDB. The core workflow is a linear pipeline of LLM agents followed by a deterministic business rules engine. State is persisted across turns via a Conversation document.
 
+![Architecture Diagram](architecture_diagram.png)
+
 HTTP -> Controller -> WorkflowService -> Agents -> BusinessRules -> ResponseAgent -> MongoDB
 
 Two MongoDB collections:
-
 - Conversation: mutable, tracks current negotiation state across turns
 - WorkflowRun: immutable audit log, one record per workflow execution
 
-## Workflow
+## Workflow Execution
 
-1. Load or create Conversation: if conversationId is provided, append the new message to the existing conversation; otherwise create a new one.
-2. Build context: trim history to last 10 messages; attach rolling conversation summary.
-3. Run analysis agents in sequence: Intent, Stage, Risk, Enthusiasm.
-4. Apply business rules: pure function consuming agent outputs; returns action and requiresHumanApproval.
-5. Generate draft reply: LLM-generated for most actions; hardcoded for HUMAN_REVIEW and SHIPPING_QUERY.
-6. Generate conversation summary: 2-sentence summary for next-turn context.
-7. Persist state: update Conversation, create WorkflowRun.
-8. Return structured output.
+1. **Load or Create Conversation**
+   - If a `conversationId` is provided, load the existing conversation and append the new creator message.
+   - Otherwise, create a new conversation record.
+
+2. **Build Context**
+   - Retrieve the most recent conversation history.
+   - Trim history to the last 10 messages.
+   - Attach the rolling conversation summary to provide long-term context while controlling token usage.
+
+3. **Run Analysis Agents**
+   - Execute the Intent Agent, Stage Agent, Risk Agent, and Enthusiasm Agent.
+   - Each agent produces structured outputs used by downstream business logic.
+
+4. **Apply Business Rules**
+   - Pass all agent outputs into a deterministic rules engine.
+   - The rules engine determines:
+     - Workflow action
+     - Escalation requirements
+     - Human approval requirements
+
+5. **Generate Draft Reply**
+   - Generate a contextual response using the Response Agent.
+   - Certain actions such as `HUMAN_REVIEW` and `SHIPPING_QUERY` use predefined responses to avoid hallucinations.
+
+6. **Generate Conversation Summary**
+   - Produce a concise rolling summary of the conversation.
+   - Store the summary for future turns and context compression.
+
+7. **Persist Workflow State**
+   - Update the Conversation document.
+   - Store a WorkflowRun record containing the full workflow execution for auditing and debugging.
+
+8. **Return Structured Result**
+   - Return the workflow decision, agent outputs, escalation status, and draft reply to the caller.
+
 
 ## Project Structure
 
@@ -41,16 +69,25 @@ src/
 
 ## LLM Usage
 
-| Agent | Why LLM |
-|---|---|
-| Intent | Classifies free-text creator messages into business-meaningful categories |
-| Stage | Classifies overall conversation trajectory |
-| Risk | Detects fraud signals, abusive tone, and unrealistic demands |
-| Enthusiasm | Scores creator engagement, requires sentiment understanding |
-| Response | Generates contextual, professional draft replies |
-| Summarizer | Produces rolling 2-sentence business summaries for future context |
+The workflow intentionally uses multiple specialized agents rather than a single large prompt. Each agent has a narrow responsibility, making the system easier to test, extend, and debug.
 
-All agents run at temperature 0 for determinism. All agents return structured JSON via Ollama's `format: "json"` mode.
+| Agent                | Responsibility                                                                        | Why Separate Agent?                                                                                 |
+| -------------------- | ------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
+| **Intent Agent**     | Detect creator intent and extract structured data such as requested compensation.     | Intent detection is a distinct NLP problem and should not be coupled with business decision-making. |
+| **Stage Agent**      | Determine the overall conversation stage.                                             | Stage depends on broader conversation context rather than only the latest message (Specifically past 10 messages in the current context).                  |
+| **Risk Agent**       | Detect potential fraud, abusive behavior, suspicious requests, or risky negotiations. | Risk assessment often evolves independently of intent and can trigger separate escalation logic.    |
+| **Enthusiasm Agent** | Measure creator engagement and partnership interest.                                  | Useful for prioritization and future creator scoring systems.                                       |
+| **Response Agent**   | Generate contextual merchant replies.                                                 | Keeps response generation isolated from classification logic.                                       |
+| **Summarizer Agent** | Maintain rolling conversation summaries.                                              | Reduces token usage and improves long-running conversation handling.                                |
+
+### Benefits of the Multi-Agent Approach
+
+* **Modularity** – Each agent can be developed, tested, and improved independently.
+* **Maintainability** – Changes to one capability do not require modifying the entire workflow.
+* **Observability** – Individual agent outputs can be logged and inspected for debugging.
+* **Scalability** – New agents can be added without redesigning the existing architecture.
+* **Reliability** – Structured intermediate outputs reduce prompt complexity and improve consistency.
+
 
 ## Deterministic Business Logic
 
@@ -96,7 +133,7 @@ Request body:
     "brief": "Creator should make a short TikTok showing friends playing the card game."
   },
   "latestMessage": "I'd be interested, but I usually charge $300.",
-  "conversationId": "<optional, omit for new conversation>"
+  "conversationId": "<OPTIONAL, omit for new conversation>"
 }
 ```
 
@@ -129,6 +166,10 @@ Individual agent tests: `node test-intent.js`, `test-stage.js`, `test-risk.js`, 
 
 Full workflow: `node test-workflow.js` (requires MongoDB and Ollama running locally).
 
+Detailed end-to-end test scenarios are documented in:
+
+📄 **[SCENARIOS.md](./SCENARIOS.md)**
+
 ## Setup
 
 ```bash
@@ -137,12 +178,228 @@ npm install
 npm run dev
 ```
 
-Requires: Node 18+, MongoDB, Ollama with qwen2.5:3b (or set LLM_MODEL env var).
+Requires: Node 18+, MongoDB, Ollama with qwen2.5:7b (or set LLM_MODEL env var).
+
+## Bonus Features Implemented
+
+The assignment listed several optional enhancements. The following were implemented:
+
+| Feature                             | Implementation                                                                                  |
+| ----------------------------------- | ----------------------------------------------------------------------------------------------- |
+| **Workflow State Storage**          | MongoDB Conversation documents maintain persistent workflow state across interactions.          |
+| **Multi-Step Negotiation Workflow** | Conversations continue across multiple turns using a unique `conversationId`.                   |
+| **Conversation Summarization**      | Rolling LLM-generated summaries are stored and reused to reduce context size.                   |
+| **Escalation Paths**                | Conversations can be routed for human review through a `WAITING_HUMAN` workflow status.         |
+| **Workflow Audit Logging**          | Every workflow execution is recorded in a dedicated `WorkflowRun` collection.                   |
+| **Human Approval Flow**             | Deterministic business rules trigger approval requirements when needed.                         |
+| **Additional Business Rules**       | Includes negotiation fatigue detection, confidence thresholds, and risk-based escalation logic. |
+
+## Additional Features Beyond Assignment Requirements
+
+The following capabilities were not explicitly required but were implemented to improve robustness and production readiness.
+
+### Risk Assessment Agent
+
+Evaluates creator messages for potentially problematic behavior such as suspicious requests, abusive language, or negotiation patterns that may require escalation.
+
+### Enthusiasm Scoring
+
+Calculates a structured creator engagement score that can support future creator ranking, prioritization, and campaign matching systems.
+
+### Confidence-Based Escalation
+
+Automatically routes conversations for human review when LLM classification confidence falls below predefined thresholds.
+
+### Negotiation Fatigue Detection
+
+Tracks repeated negotiation cycles and escalates conversations that exceed acceptable negotiation limits, preventing endless automated back-and-forth exchanges.
+
+### Hallucination Prevention
+
+Response generation is constrained to campaign-provided information and explicitly prevents inventing:
+
+* Shipping timelines
+* Deliverables
+* Product details
+* Compensation promises
+
+unless such information is present in the campaign data.
+
+### Immutable Audit Trail
+
+Every workflow execution is stored independently from conversation state, enabling debugging, traceability, analytics, and compliance auditing.
+
 
 ## Scaling Considerations
 
-1,000 creators: Current architecture handles this without changes. Add indexes on workflowStatus and creator.name.
+1,000 creators: Current architecture handles this without changes. Add indexing on collections.
 
-10,000 creators: Move agent execution to a job queue (BullMQ + Redis). HTTP endpoint enqueues the job and returns a job ID; client polls or receives a webhook. Run Ollama on a dedicated GPU instance. Parallelise the four analysis agents with Promise.all().
+10,000 creators: Move agent execution to a job queue (BullMQ + Redis). HTTP endpoint enqueues the job and returns a job ID; client polls or receives a webhook. Run Ollama on a dedicated GPU instance. Parallelise the analysis agents with Promise.all().
 
 100,000 creators: Shard MongoDB or migrate to PostgreSQL. Replace Ollama with a hosted LLM API (Anthropic, OpenAI) for reliability and throughput. Introduce a proper orchestration layer (Temporal) for durable workflow execution with retry, timeout, and human task queues. Add a caching layer (Redis) for campaign data.
+
+
+## Engineering Tradeoffs and Production Considerations
+
+This implementation was intentionally scoped for the assessment and prioritizes clarity, maintainability, and ease of evaluation over full production-scale architecture.
+
+The current design demonstrates the core workflow while highlighting areas that would evolve in a production environment.
+
+### Sequential Agent Execution
+
+#### Current Implementation
+
+Agents execute sequentially:
+
+```text
+Intent Agent
+      ↓
+Stage Agent
+      ↓
+Risk Agent
+      ↓
+Enthusiasm Agent
+```
+
+#### Why
+
+* Simpler implementation
+* Easier debugging
+* Clear visibility into intermediate outputs
+* Straightforward workflow tracing
+
+#### Production Approach
+
+Since these agents are independent, they could execute concurrently:
+
+```text
+Intent Agent
+Stage Agent
+Risk Agent
+Enthusiasm Agent
+        ↓
+    Promise.all()
+```
+
+Benefits:
+
+* Lower end-to-end latency
+* Better throughput
+* More efficient resource utilization
+
+---
+
+### MongoDB as Workflow Store
+
+#### Current Implementation
+
+MongoDB stores:
+
+* Conversation state
+* Workflow metadata
+* Audit logs
+
+#### Why
+
+* Rapid development
+* Flexible schema evolution
+* Minimal infrastructure complexity
+
+#### Production Approach
+
+A larger-scale deployment would likely separate responsibilities:
+
+* PostgreSQL for transactional workflow state
+* Redis for caching and queues
+* Dedicated analytics datastore for reporting and observability
+
+---
+
+### Local LLM Inference
+
+#### Current Implementation
+
+* Ollama
+* Qwen 2.5 7B model
+* Fully local execution
+
+#### Why
+
+* No API costs
+* Easy reproducibility
+* Offline development environment
+
+#### Production Approach
+
+* Hosted OpenAI or Anthropic models
+* Auto-scaling inference infrastructure
+* Multi-model routing
+* Fallback and failover strategies
+
+---
+
+### Human Review Workflow
+
+#### Current Implementation
+
+Human escalation is represented through a workflow status:
+
+```text
+WAITING_HUMAN
+```
+
+and deterministic approval requirements.
+
+#### Production Approach
+
+A complete review system would include:
+
+* Approval queue management
+* Reviewer assignment
+* Approval SLA tracking
+* Escalation monitoring
+
+---
+
+### Retry and Failure Handling
+
+#### Current Implementation
+
+* Standard request-level error handling
+* Workflow failure response
+
+#### Production Approach
+
+Robust workflow systems typically include:
+
+* Exponential backoff
+* Agent-specific retry policies
+* Dead-letter queues
+* Partial workflow recovery
+* Workflow resumption from checkpoints
+
+---
+
+### Context Management
+
+#### Current Implementation
+
+Context is built using:
+
+* Recent conversation messages
+* Rolling conversation summaries
+
+#### Why
+
+Provides sufficient context while controlling token usage.
+
+#### Production Approach
+
+More advanced systems would leverage:
+
+* Retrieval-based context selection
+* Vector search
+* Semantic memory retrieval
+* Long-term conversation memory
+
+---

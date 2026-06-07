@@ -2,7 +2,7 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-import stageAgent from "./src/services/agents/stageAgent.js";
+import stageAgent from "../src/services/agents/stageAgent.js";
 
 const context = {
   conversationSummary: "",

@@ -2,7 +2,7 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-import summarizerAgent from "./src/services/agents/summarizerAgent.js";
+import summarizerAgent from "../src/services/agents/summarizerAgent.js";
 
 const result =
   await summarizerAgent({

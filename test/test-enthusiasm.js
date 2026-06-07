@@ -2,7 +2,7 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-import enthusiasmAgent from "./src/services/agents/enthusiasmAgent.js";
+import enthusiasmAgent from "../src/services/agents/enthusiasmAgent.js";
 
 const context = {
   latestMessage:

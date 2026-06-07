@@ -1,4 +1,4 @@
-import evaluateBusinessRules from "./src/rules/businessRules.js";
+import evaluateBusinessRules from "../src/rules/businessRules.js";
 
 const result =
   evaluateBusinessRules({

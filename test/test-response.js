@@ -2,7 +2,7 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-import responseAgent from "./src/services/agents/responseAgent.js";
+import responseAgent from "../src/services/agents/responseAgent.js";
 
 const result =
   await responseAgent({

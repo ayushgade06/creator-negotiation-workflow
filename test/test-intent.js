@@ -3,7 +3,7 @@ dotenv.config();
 
 // console.log(process.env.GOOGLE_GENAI_API_KEY);
 
-import intentAgent from "./src/services/agents/intentAgent.js";
+import intentAgent from "../src/services/agents/intentAgent.js";
 
 const context = {
   creator: {

@@ -1,8 +1,8 @@
 import dotenv from "dotenv";
 dotenv.config();
 
-import connectDB from "./src/config/db.js";
-import processWorkflow from "./src/services/workflowService.js";
+import connectDB from "../src/config/db.js";
+import processWorkflow from "../src/services/workflowService.js";
 
 await connectDB();
 
