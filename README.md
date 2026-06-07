@@ -23,13 +23,9 @@ Express REST API backed by MongoDB. The core workflow is a linear pipeline of LL
 
 ## High-Level Workflow
 
-The following diagram shows the core creator negotiation workflow at a business level.
-
 ![High Level Workflow](simple_architecture.png)
 
 ## Detailed System Architecture
-
-The following diagram shows the actual implementation including state management, agent execution, persistence, business rule evaluation, human review escalation, audit logging, and response generation.
 
 ![Detailed Architecture](architecture_diagram.png)
 
