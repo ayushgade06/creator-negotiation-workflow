@@ -1,5 +1,4 @@
-8. README
-markdown# Creator Negotiation Workflow
+# Creator Negotiation Workflow
 
 Backend service that automates creator-brand negotiation for affiliate marketing campaigns. Receives a creator message, classifies intent and conversation stage, applies business rules, and returns a structured decision with a draft response.
 
