@@ -3,7 +3,7 @@ export const buildContext = ({
   campaign,
   conversationHistory = [],
   conversationSummary = "",
-  latestMessage
+  latestMessage,
 }) => {
   return {
     creator,
@@ -12,9 +12,8 @@ export const buildContext = ({
 
     conversationSummary,
 
-    recentMessages:
-      conversationHistory.slice(-10),
+    recentMessages: conversationHistory.slice(-10),
 
-    latestMessage
+    latestMessage,
   };
 };
