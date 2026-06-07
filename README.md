@@ -2,13 +2,36 @@
 
 Backend service that automates creator-brand negotiation for affiliate marketing campaigns. Receives a creator message, classifies intent and conversation stage, applies business rules, and returns a structured decision with a draft response.
 
+## Table of Contents
+
+- [Architecture](#architecture)
+- [Project Structure](#project-structure)
+- [Workflow Execution](#workflow-execution)
+- [LLM Usage](#llm-usage)
+- [Business Rules](#business-rules)
+- [State Management](#state-management)
+- [API Reference](#api-reference)
+- [Setup](#setup)
+- [Test Scenarios](#test-scenarios)
+- [Scaling Considerations](#scaling-considerations)
+- [Engineering Tradeoffs](#engineering-tradeoffs)
+- [Bonus Features Implemented](#bonus-features-implemented)
+
 ## Architecture
 
 Express REST API backed by MongoDB. The core workflow is a linear pipeline of LLM agents followed by a deterministic business rules engine. State is persisted across turns via a Conversation document.
 
-![Architecture Diagram](architecture_diagram.png)
+## High-Level Workflow
 
-HTTP -> Controller -> WorkflowService -> Agents -> BusinessRules -> ResponseAgent -> MongoDB
+The following diagram shows the core creator negotiation workflow at a business level.
+
+![High Level Workflow](simple_architecture.png)
+
+## Detailed System Architecture
+
+The following diagram shows the actual implementation including state management, agent execution, persistence, business rule evaluation, human review escalation, audit logging, and response generation.
+
+![Detailed Architecture](architecture_diagram.png)
 
 Two MongoDB collections:
 - Conversation: mutable, tracks current negotiation state across turns
