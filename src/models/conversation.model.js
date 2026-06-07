@@ -5,19 +5,19 @@ const messageSchema = new mongoose.Schema(
     role: {
       type: String,
       enum: ["CREATOR", "BRAND"],
-      required: true
+      required: true,
     },
 
     content: {
       type: String,
       required: true,
-      trim: true
-    }
+      trim: true,
+    },
   },
   {
     _id: false,
-    timestamps: true
-  }
+    timestamps: true,
+  },
 );
 
 const conversationSchema = new mongoose.Schema(
@@ -25,40 +25,40 @@ const conversationSchema = new mongoose.Schema(
     creator: {
       name: {
         type: String,
-        required: true
+        required: true,
       },
 
       platform: {
         type: String,
-        required: true
+        required: true,
       },
 
       followers: {
         type: Number,
-        required: true
-      }
+        required: true,
+      },
     },
 
     campaign: {
       product: {
         type: String,
-        required: true
+        required: true,
       },
 
       commission: {
         type: String,
-        required: true
+        required: true,
       },
 
       fixedFeeRange: {
         type: String,
-        required: true
+        required: true,
       },
 
       brief: {
         type: String,
-        required: true
-      }
+        required: true,
+      },
     },
 
     messages: [messageSchema],
@@ -69,48 +69,51 @@ const conversationSchema = new mongoose.Schema(
         "INTERESTED",
         "NEGOTIATING",
         "NEEDS_MORE_INFORMATION",
-        "NOT_INTERESTED"
+        "NOT_INTERESTED",
       ],
-      default: "INTERESTED"
+      default: "INTERESTED",
     },
 
     negotiationRounds: {
       type: Number,
-      default: 0
+      default: 0,
     },
 
     lastIntent: {
       type: String,
-      default: null
+      default: null,
     },
 
     enthusiasmScore: {
       type: Number,
-      default: 0
+      default: 0,
     },
 
     riskLevel: {
       type: String,
       enum: ["LOW", "MEDIUM", "HIGH"],
-      default: "LOW"
+      default: "LOW",
     },
 
     conversationSummary: {
       type: String,
-      default: ""
+      default: "",
     },
 
     requiresHumanApproval: {
       type: Boolean,
-      default: false
-    }
+      default: false,
+    },
+
+    workflowStatus: {
+      type: String,
+      enum: ["ACTIVE", "WAITING_HUMAN", "COMPLETED"],
+      default: "ACTIVE",
+    },
   },
   {
-    timestamps: true
-  }
+    timestamps: true,
+  },
 );
 
-export default mongoose.model(
-  "Conversation",
-  conversationSchema
-);
+export default mongoose.model("Conversation", conversationSchema);

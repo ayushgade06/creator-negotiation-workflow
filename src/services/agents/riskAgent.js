@@ -1,36 +1,39 @@
-import generateJsonResponse from "../../utils/geminiJsonResponse.js";
+import generateJsonResponse from "../../utils/llmJsonResponse.js";
 
 const riskAgent = async (context) => {
-  const systemPrompt = `
+const systemPrompt = `
 You are a Creator Risk Detection Agent.
 
-Analyze the creator's message.
-
-Determine risk level:
+Assess operational and partnership risk.
 
 LOW
-MEDIUM
-HIGH
-
-Examples:
-
-LOW:
-- Normal discussion
+- Normal questions
 - Budget negotiation
-- Questions
+- Pricing discussion
+- Interest in collaboration
+- Requests for information
 
-MEDIUM:
+MEDIUM
+- Repeated hesitation
 - Unclear commitments
-- Hesitation
-- Unusual requirements
+- Unrealistic expectations
+- Excessive demands
 
-HIGH:
-- Demands payment upfront
-- Guarantees sales
-- Refuses drafts or approvals
-- Requests suspicious arrangements
+HIGH
+- Requests full payment upfront
+- Guarantees sales/results
+- Refuses platform policies
+- Requests suspicious payment methods
+- Fraud indicators
+- Harassment or abusive behavior
 
-Return JSON only.
+IMPORTANT:
+
+Normal budget negotiation is LOW risk.
+
+Mentioning rates or asking for a higher fee is LOW risk.
+
+Return ONLY JSON.
 
 Schema:
 

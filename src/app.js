@@ -1,4 +1,5 @@
 import express from "express";
+import workflowRoutes from "./routes/workflowRoutes.js";
 
 const app = express();
 
@@ -10,5 +11,10 @@ app.get("/health", (req, res) => {
     message: "Server healthy"
   });
 });
+
+app.use(
+  "/api/workflows",
+  workflowRoutes
+);
 
 export default app;

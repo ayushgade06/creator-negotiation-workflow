@@ -5,45 +5,54 @@ const workflowRunSchema = new mongoose.Schema(
     conversationId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Conversation",
-      required: true
+      required: true,
     },
 
     intent: {
       type: String,
-      required: true
+      required: true,
     },
 
     stage: {
       type: String,
-      required: true
+      required: true,
     },
 
     action: {
       type: String,
-      required: true
+      required: true,
     },
 
     confidence: {
       type: Number,
-      required: true
+      required: true,
     },
 
     reasoningSummary: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
+
+    riskLevel: {
+      type: String,
+    },
+
+    enthusiasmScore: {
+      type: Number,
+    },
+
+    requiresHumanApproval: {
+      type: Boolean,
+    },
   },
   {
-    timestamps: true
-  }
+    timestamps: true,
+  },
 );
 
 workflowRunSchema.index({
   conversationId: 1,
-  createdAt: -1
+  createdAt: -1,
 });
 
-export default mongoose.model(
-  "WorkflowRun",
-  workflowRunSchema
-);
+export default mongoose.model("WorkflowRun", workflowRunSchema);
